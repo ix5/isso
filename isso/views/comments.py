@@ -312,7 +312,8 @@ class API(object):
         cookie = functools.partial(dump_cookie,
                                    value=self.isso.sign(
                                        [rv["id"], sha1(rv["text"])]),
-                                   max_age=self.conf.getint('max-age'))
+                                   max_age=self.conf.getint('max-age'),
+                                   secure=True, samesite='None')
 
         rv["text"] = self.isso.render(rv["text"])
         rv["hash"] = self.hash(rv['email'] or rv['remote_addr'])
@@ -461,7 +462,8 @@ class API(object):
         cookie = functools.partial(dump_cookie,
                                    value=self.isso.sign(
                                        [rv["id"], sha1(rv["text"])]),
-                                   max_age=self.conf.getint('max-age'))
+                                   max_age=self.conf.getint('max-age'),
+                                   secure=True, samesite='None')
 
         rv["text"] = self.isso.render(rv["text"])
 
@@ -474,7 +476,7 @@ class API(object):
     @api {delete} '/id/:id' delete
     @apiGroup Comment
     @apiDescription
-        Delte an existing comment. Deleting a comment is only possible for a short period of time after it was created and only if the requestor has a valid cookie for it. See the [isso server documentation](https://posativ.org/isso/docs/configuration/server) for details.
+        Delete an existing comment. Deleting a comment is only possible for a short period of time after it was created and only if the requestor has a valid cookie for it. See the [isso server documentation](https://posativ.org/isso/docs/configuration/server) for details.
 
     @apiParam {number} id
         Id of the comment to delete.
@@ -518,7 +520,8 @@ class API(object):
         self.signal("comments.delete", id)
 
         resp = JSON(rv, 200)
-        cookie = functools.partial(dump_cookie, expires=0, max_age=0)
+        cookie = functools.partial(dump_cookie, expires=0, max_age=0,
+                                   secure=True, samesite='None')
         resp.headers.add("Set-Cookie", cookie(str(id)))
         resp.headers.add("X-Set-Cookie", cookie("isso-%i" % id))
         return resp
@@ -1109,7 +1112,8 @@ class API(object):
             ))
             cookie = functools.partial(dump_cookie,
                                        value=self.isso.sign({"logged": True}),
-                                       expires=datetime.now() + timedelta(1))
+                                       expires=datetime.now() + timedelta(1),
+                                       secure=True, samesite='None')
             response.headers.add("Set-Cookie", cookie("admin-session"))
             response.headers.add("X-Set-Cookie", cookie("isso-admin-session"))
             return response
