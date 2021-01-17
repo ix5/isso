@@ -14,6 +14,8 @@ div(class='isso-postbox')
             p(class='input-wrapper')
                 input(type='email' name='email' placeholder=i18n('postbox-email')
                       value=email != null ? '#{email}' : '')
+                abbr(class='postbox-email-info' title=i18n('postbox-email-info')) ?
+                span(class='postbox-email-tooltip tooltip-hidden')= i18n('postbox-email-info')
             p(class='input-wrapper')
                 input(type='text' name='website' placeholder=i18n('postbox-website')
                       value=website != null ? '#{website}' : '')
