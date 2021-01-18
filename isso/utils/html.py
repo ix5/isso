@@ -54,6 +54,9 @@ class Sanitizer(object):
 def Markdown(extensions=("strikethrough", "superscript", "autolink",
                          "fenced-code"), flags=[]):
 
+    # Normalize render extensions for misaka 2.0
+    extensions = [x.replace("_", "-") for x in extensions]
+
     renderer = Unofficial(flags=flags)
     md = misaka.Markdown(renderer, extensions=extensions)
 
