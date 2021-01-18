@@ -24,7 +24,7 @@ class TestComments(unittest.TestCase):
 
     def setUp(self):
         fd, self.path = tempfile.mkstemp()
-        conf = config.load(os.path.join(dist.location, "share", "isso.conf"))
+        conf = config.load(os.path.join(dist.location, dist.project_name, "defaults.ini"))
         conf.set("general", "dbpath", self.path)
         conf.set("guard", "enabled", "off")
         conf.set("hash", "algorithm", "none")
@@ -497,7 +497,7 @@ class TestModeratedComments(unittest.TestCase):
 
     def setUp(self):
         fd, self.path = tempfile.mkstemp()
-        conf = config.load(os.path.join(dist.location, "share", "isso.conf"))
+        conf = config.load(os.path.join(dist.location, dist.project_name, "defaults.ini"))
         conf.set("general", "dbpath", self.path)
         conf.set("moderation", "enabled", "true")
         conf.set("guard", "enabled", "off")
@@ -533,7 +533,7 @@ class TestPurgeComments(unittest.TestCase):
 
     def setUp(self):
         fd, self.path = tempfile.mkstemp()
-        conf = config.load(os.path.join(dist.location, "share", "isso.conf"))
+        conf = config.load(os.path.join(dist.location, dist.project_name, "defaults.ini"))
         conf.set("general", "dbpath", self.path)
         conf.set("moderation", "enabled", "true")
         conf.set("guard", "enabled", "off")
