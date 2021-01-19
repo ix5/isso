@@ -73,7 +73,7 @@ function start_edit(com_id) {
     var editable_elements = ['isso-author-' + com_id,
                              'isso-email-' + com_id,
                              'isso-website-' + com_id,
-                             'isso-text-' + com_id];
+                             'isso-text-pre-' + com_id];
     for (var idx=0; idx <= editable_elements.length; idx++) {
         set_editable(editable_elements[idx]);
     }
@@ -85,7 +85,7 @@ function stop_edit(com_id, save_changes) {
     var editable_elements = ['isso-author-' + com_id,
                              'isso-email-' + com_id,
                              'isso-website-' + com_id,
-                             'isso-text-' + com_id];
+                             'isso-text-pre-' + com_id];
     for (var idx=0; idx <= editable_elements.length; idx++) {
         unset_editable(editable_elements[idx], save_changes);
     }
