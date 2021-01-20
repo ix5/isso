@@ -214,6 +214,9 @@ class Telegram(object):
         yield "comments.edit", self._edit_comment
         yield "comments.delete", self._delete_comment
 
+        yield "reactions.new:new-thread", self._new_thread
+        yield "reactions.new:finish", self._new_reaction
+
     def _sanitize(self, message):
         # Need to strip elements Telegram hates
         # See https://core.telegram.org/bots/api#html-style
@@ -300,6 +303,11 @@ class Telegram(object):
         pass
         # Don't hook this up for now
         #self._post_tg("Comment deleted: {}".format(id))
+
+    def _new_reaction(self, thread, rv):
+        # Note: Requires using full URLs instead of relative ones
+        msg = 'New reaction! {count} thanks for\n<a href="https://{uri}">{uri}</a>'
+        self._post_tg(msg.format(count=rv['count'], uri=thread['uri']))
 
 
 class Stdout(object):
