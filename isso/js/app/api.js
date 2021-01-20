@@ -177,6 +177,20 @@ define(["app/lib/promise", "app/globals"], function(Q, globals) {
         return deferred.promise;
     };
 
+    var react = function(tid, data) {
+        var deferred = Q.defer();
+        if (data == null) {
+            curl("GET", endpoint + "/reactions?" + qs({uri: tid || location()}),
+                 JSON.stringify(data), function(rv) { deferred.resolve(JSON.parse(rv.body)); }
+            );
+        } else {
+            curl("POST", endpoint + "/thanks?" + qs({uri: tid || location()}),
+                 JSON.stringify(data),
+                 function(rv) { deferred.resolve(JSON.parse(rv.body)); });
+        }
+        return deferred.promise;
+    };
+
     var like = function(id) {
         var deferred = Q.defer();
         curl("POST", endpoint + "/id/" + id + "/like", null,
@@ -219,6 +233,7 @@ define(["app/lib/promise", "app/globals"], function(Q, globals) {
         view: view,
         fetch: fetch,
         count: count,
+        react: react,
         like: like,
         dislike: dislike,
         feed: feed,

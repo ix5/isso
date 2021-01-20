@@ -209,6 +209,9 @@ class Stdout(object):
         yield "comments.delete", self._delete_comment
         yield "comments.activate", self._activate_comment
 
+        yield "reactions.new:new-thread", self._new_thread
+        yield "reactions.new:finish", self._new_reaction
+
     def _new_thread(self, thread):
         logger.info("new thread %(id)s: %(title)s" % thread)
 
@@ -224,3 +227,7 @@ class Stdout(object):
 
     def _activate_comment(self, thread, comment):
         logger.info("comment %(id)s activated" % thread)
+
+    def _new_reaction(self, thread, rv):
+        logger.info("new reaction id: %d (%d times) for thread: %s" % (
+            rv['id'], rv['count'], thread['uri']))

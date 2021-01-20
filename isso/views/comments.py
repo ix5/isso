@@ -111,6 +111,8 @@ class API(object):
         ('unsubscribe', ('GET', '/id/<int:id>/unsubscribe/<string:email>/<string:key>')),
         ('moderate', ('GET', '/id/<int:id>/<any(edit,activate,delete):action>/<string:key>')),
         ('moderate', ('POST', '/id/<int:id>/<any(edit,activate,delete):action>/<string:key>')),
+        ('thanks', ('POST', '/thanks')),
+        ('reactcount', ('GET', '/reactions')),
         ('like', ('POST', '/id/<int:id>/like')),
         ('dislike', ('POST', '/id/<int:id>/dislike')),
         ('demo', ('GET', '/demo')),
@@ -141,6 +143,7 @@ class API(object):
         self.guard = isso.db.guard
         self.threads = isso.db.threads
         self.comments = isso.db.comments
+        self.reactions = isso.db.reactions
 
         for (view, (method, path)) in self.VIEWS:
             isso.urls.add(
@@ -870,6 +873,53 @@ class API(object):
                 item['text'] = self.isso.render(item['text'])
 
         return fetched_list
+
+
+    @xhr
+    @requires(str, 'uri')
+    def thanks(self, environ, request, uri):
+
+        data = request.get_json()
+        data['remote_addr'] = self._remote_addr(request)
+        # for debugging so localhost isn't blocked after one try
+        #from random import randint
+        #data['remote_addr'] = "127.0.0.%d" % randint(1, 255)
+
+        with self.isso.lock:
+            # TODO: unify this with comments add() code
+            if uri not in self.threads:
+                if 'title' not in data:
+                    with http.curl('GET', local("origin"), uri) as resp:
+                        if resp and resp.status == 200:
+                            uri, title = parse.thread(resp.read(), id=uri)
+                        else:
+                            return NotFound('URI does not exist %s')
+                else:
+                    title = data['title']
+
+                thread = self.threads.new(uri, title)
+                self.signal("reactions.new:new-thread", thread)
+            else:
+                thread = self.threads[uri]
+        with self.isso.lock:
+            rv = self.reactions.add(uri, data)
+
+        # Notify extensions
+        if rv.get('increased'):
+            self.signal("reactions.new:finish", thread, rv)
+
+        # No need to fiddle with cookies, reactions are irrevocable and
+        # remote_addr is saved for spam protection
+        resp = JSON(rv, 201)
+        return resp
+
+    @xhr
+    @requires(str, 'uri')
+    def reactcount(self, environ, request, uri):
+        rv = self.reactions.count(uri)
+        resp = JSON(rv, 201)
+        return resp
+
 
     """
     @apiDefine likeResponse
