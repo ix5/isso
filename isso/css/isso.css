@@ -305,5 +305,9 @@
     }
     .isso-postbox > .form-wrapper > .auth-section .input-wrapper input {
         width: 100%;
+        font-size: 1.2em;
+    }
+    .isso-postbox > .form-wrapper > .auth-section .post-action > input {
+        font-size: 1.2em;
     }
 }

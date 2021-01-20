@@ -1,5 +1,5 @@
 define({
-    "postbox-text": "Type Comment Here (at least 3 chars)",
+    "postbox-text": "Type Comment Here (Markdown supported)",
     "postbox-author": "Name (optional)",
     "postbox-email": "E-mail (optional)",
     "postbox-email-info": "E-Mail will not be made public",
