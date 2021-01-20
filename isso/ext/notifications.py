@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import io
 import time
 import json
+import re
 
 import socket
 import smtplib
@@ -22,6 +23,11 @@ try:
     import uwsgi
 except ImportError:
     uwsgi = None
+
+try:
+    import requests
+except ImportError:
+    requests = None
 
 from isso import local
 
@@ -194,6 +200,75 @@ class SMTP(object):
                 time.sleep(60)
             else:
                 break
+
+
+class Telegram(object):
+
+    def __init__(self, conf):
+        self.conf = conf.section("telegram")
+        self.chat_id = self.conf.get('chat_id')
+        token = self.conf.get('token')
+        self.telegram_api = 'https://api.telegram.org/bot{}/sendMessage'.format(token)
+
+    def __iter__(self):
+
+        yield "comments.new:new-thread", self._new_thread
+        yield "comments.new:finish", self._new_comment
+        yield "comments.edit", self._edit_comment
+        yield "comments.delete", self._delete_comment
+
+    def _sanitize(self, message):
+        # Need to strip elements Telegram hates
+        # See https://core.telegram.org/bots/api#html-style
+        allowed = ["b", "i", "u", "s", "a", "code", "pre"]
+        sanitized_msg = message
+        # Preserve some emphasis that was mis-rendered by misaka
+        sanitized_msg = sanitized_msg.replace(
+            "<strong>", "<b>").replace("</strong>", "</b>")
+        for m in re.findall(r"(</?\w+>)", message):
+            # Only tag content:
+            stripped = m.lstrip("<").rstrip(">").lstrip("/")
+            # Links should be ok:
+            if stripped.startswith("a href"):
+                continue
+            if stripped not in allowed:
+                sanitized_msg = sanitized_msg.replace(m, "")
+        return sanitized_msg
+
+    def _post_tg(self, message):
+        if not requests:
+            logger.warn("Need requests package for posting to Telegram API!")
+            return
+        r = requests.post(self.telegram_api,
+                          data={
+                              'chat_id': self.chat_id,
+                              'text': message,
+                              'parse_mode': 'HTML'
+                          })
+        # Response should look like:
+        # b'{"ok":true,"result":...}
+        logger.info("Got response from TG API: {}".format(r.content))
+        r_dict = json.loads(r.content)
+        if r_dict.get("ok") is not True:
+            logger.info("Posting to Telegram successful")
+        else:
+            logger.warn("Posting to Telegram failed! {}".format(r_dict))
+
+    def _new_thread(self, thread):
+        self._post_tg("New thread! {id}: {title}".format(**thread))
+
+    def _new_comment(self, thread, comment):
+        comment["text"] = self._sanitize(comment["text"])
+        msg = "New comment!\n<b>Author</b>: {author}\nWebsite: {website}\n<b>Content</b>:\n{text}"
+        self._post_tg(msg.format(**comment))
+
+    def _edit_comment(self, comment):
+        comment["text"] = self._sanitize(comment["text"])
+        msg = "Comment edited:\n<b>Author:</b> {author}\n<b>New content:</b>\n {text}"
+        self._post_tg(msg.format(**comment))
+
+    def _delete_comment(self, id):
+        self._post_tg("Comment deleted: {}".format(id))
 
 
 class Stdout(object):
