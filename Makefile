@@ -29,7 +29,7 @@ DOCS_HTML_DST := docs/_build/html
 
 RJS = r.js
 
-SASS = node-sass
+SASS = sassc
 
 all: man js site
 
@@ -54,7 +54,7 @@ man: $(DOCS_RST_SRC)
 	mv man/isso.conf.5 man/man5/isso.conf.5
 
 ${DOCS_CSS_DST}: $(DOCS_CSS_SRC) $(DOCS_CSS_DEP)
-	$(SASS) --no-cache $(DOCS_CSS_SRC) $@
+	$(SASS) $(DOCS_CSS_SRC) $@
 
 ${DOCS_HTML_DST}: $(DOCS_RST_SRC) $(DOCS_CSS_DST)
 	sphinx-build -b dirhtml docs/ $@
