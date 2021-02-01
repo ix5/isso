@@ -10,6 +10,7 @@ from collections import defaultdict
 logger = logging.getLogger("isso")
 
 from isso.db.comments import Comments
+from isso.db.reactions import Reactions
 from isso.db.threads import Threads
 from isso.db.spam import Guard
 from isso.db.preferences import Preferences
@@ -37,6 +38,7 @@ class SQLite3:
         self.preferences = Preferences(self)
         self.threads = Threads(self)
         self.comments = Comments(self)
+        self.reactions = Reactions(self)
         self.guard = Guard(self)
 
         if rv is None:

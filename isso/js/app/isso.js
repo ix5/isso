@@ -393,9 +393,50 @@ define(["app/dom", "app/utils", "app/config", "app/api", "app/jade", "app/i18n",
 
     };
 
+    if (config.reactions) {
+        var Reactions = function(parent) {
+
+            // Fetch data async first
+            api.react(null, null).then(function (rv) {
+                reactions(rv.count);
+            });
+
+            // Render template next
+            var el = $.htmlify(jade.render("reactions", {"count": 0}));
+
+
+            // Update reaction counters
+            var reactions = function (value) {
+                var cnter = $('#thanks-counter');
+                var btn = $('#thanks');
+                btn.classList.add('isso-not-reacted');
+                if (value) {
+                    cnter.textContent = value;
+                } else {
+                    // Should not happen
+                }
+            };
+
+            // Hook up listener
+            $("[id='thanks']", el).on("click", function () {
+                var title = $("#isso-thread").getAttribute("data-title") || null;
+                var data = { "reaction": 1, "title": title };
+                api.react($("#isso-thread").getAttribute("data-isso-id"), data).then(function (rv) {
+                    reactions(rv.count);
+                // how do I get `this`?
+                var btn = $('#thanks');
+                btn.classList.remove('isso-not-reacted');
+                });
+            });
+
+            return el;
+        }
+    }
+
     return {
         insert: insert,
         insert_loader: insert_loader,
-        Postbox: Postbox
+        Postbox: Postbox,
+        Reactions: Reactions
     };
 });

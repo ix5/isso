@@ -70,6 +70,7 @@ require(["app/lib/ready", "app/config", "app/i18n", "app/api", "app/isso", "app/
                 }
 
                 // Finally, create Postbox with configs fetched from server
+                isso_thread.append(new isso.Reactions(null));
                 isso_thread.append(new isso.Postbox(null));
 
                 if (rv.total_replies === 0) {

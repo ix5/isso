@@ -20,6 +20,7 @@ define(["app/utils"], function(utils) {
                       "#be5168", "#f19670", "#e4bf80", "#447c69"].join(" "),
         "vote": true,
         "vote-levels": null,
+        "reactions": true,
         "feed": false
     };
 
