@@ -16,6 +16,8 @@ module.exports = {
     "no-comments": "No Comments Yet",
     "atom-feed": "Atom feed",
 
+    "reactions-thanks": "Thanks",
+
     "comment-reply": "Reply",
     "comment-edit": "Edit",
     "comment-save": "Save",

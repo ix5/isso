@@ -22,6 +22,7 @@ var default_config = {
     "vote-levels": null,
     "feed": false,
     "page-author-hashes": "",
+    "reactions": true,
 };
 Object.freeze(default_config);
 

@@ -25,6 +25,7 @@ template.set("svg", svg);
 var isso_thread;
 var heading;
 var postbox;
+var reactions;
 
 // Track whether config has been fetched from server
 var config_fetched = utils.wait_for();
@@ -83,6 +84,12 @@ function init() {
                 isso_thread.append(postbox);
             } else {
                 $('.isso-postbox').value = postbox;
+            }
+            reactions = new isso.Reactions(null);
+            if (!$('#isso-reactions')) {
+                isso_thread.prepend(reactions);
+            } else {
+                $('#isso-reactions').value = reactions;
             }
             if (!$('#isso-root')) {
                 isso_thread.append('<div id="isso-root"></div>');

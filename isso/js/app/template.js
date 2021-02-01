@@ -3,6 +3,7 @@ var utils = require("app/utils");
 var tmpl_postbox = require("app/templates/postbox");
 var tmpl_comment = require("app/templates/comment");
 var tmpl_comment_loader = require("app/templates/comment-loader");
+var tmpl_reactions = require("app/templates/reactions");
 
 "use strict";
 
@@ -20,6 +21,7 @@ var set = function(name, value) {
 load_tmpl("postbox", tmpl_postbox);
 load_tmpl("comment", tmpl_comment);
 load_tmpl("comment-loader", tmpl_comment_loader);
+load_tmpl("reactions", tmpl_reactions);
 
 set("humanize", function(date) {
     if (typeof date !== "object") {

@@ -403,8 +403,48 @@ var insert = function(comment, scrollIntoView) {
 
 };
 
+var Reactions = function () {};
+if (config.reactions) {
+    Reactions = function(parent) {
+
+        // Fetch data async first
+        api.react(null, null).then(function (rv) {
+            reactions(rv.count);
+        });
+
+        // Render template next
+        var el = $.htmlify(template.render("reactions", {"count": 0}));
+
+        // Update reaction counters
+        var reactions = function (num_reactions) {
+            var cnter = $('#isso-thanks-counter');
+            var btn = $('#isso-thanks');
+            btn.classList.add('isso-not-reacted');
+            if (num_reactions) {
+                cnter.textContent = num_reactions;
+            } else {
+                // Should not happen
+            }
+        };
+
+        // Hook up listener
+        $("#isso-thanks", el).on("click", function () {
+            var title = $("#isso-thread").getAttribute("data-title") || null;
+            var data = { "reaction": 1, "title": title };
+            api.react($("#isso-thread").getAttribute("data-isso-id"), data).then(function (rv) {
+                reactions(rv.count);
+                var btn = $('#isso-thanks');
+                btn.classList.remove('isso-not-reacted');
+            });
+        });
+
+        return el;
+    }
+}
+
 module.exports = {
     insert: insert,
     insert_loader: insert_loader,
     Postbox: Postbox,
+    Reactions: Reactions,
 };
