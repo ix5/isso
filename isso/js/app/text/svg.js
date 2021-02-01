@@ -1,6 +1,7 @@
-define(["text!./arrow-down.svg", "text!./arrow-up.svg"], function (arrdown, arrup) {
+define(["text!./arrow-down.svg", "text!./arrow-up.svg", "text!./heart.svg"], function (arrdown, arrup, heart) {
     return {
         "arrow-down": arrdown,
-        "arrow-up": arrup
+        "arrow-up": arrup,
+        "heart": heart
     };
 });

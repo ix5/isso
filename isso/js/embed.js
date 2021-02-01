@@ -41,6 +41,7 @@ require(["app/lib/ready", "app/config", "app/i18n", "app/api", "app/isso", "app/
             isso_thread.append(feedLinkWrapper);
         }
         isso_thread.append(heading);
+        isso_thread.append(new isso.Reactions(null));
         isso_thread.append(new isso.Postbox(null));
         isso_thread.append('<div id="isso-root"></div>');
     }
