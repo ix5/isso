@@ -2,6 +2,7 @@
 
 import io
 import json
+import re
 import smtplib
 import socket
 import time
@@ -19,6 +20,11 @@ try:
     import uwsgi
 except ImportError:
     uwsgi = None
+
+try:
+    import requests
+except ImportError:
+    requests = None
 
 from isso import local
 
@@ -189,6 +195,111 @@ class SMTP(object):
                 time.sleep(60)
             else:
                 break
+
+
+class Telegram(object):
+
+    def __init__(self, isso):
+        self.isso = isso
+        self.conf = isso.conf.section("telegram")
+        self.public_endpoint = isso.conf.get("server", "public-endpoint") or local("host")
+        self.chat_id = self.conf.get('chat_id')
+        token = self.conf.get('token')
+        self.telegram_api = 'https://api.telegram.org/bot{}/sendMessage'.format(token)
+
+    def __iter__(self):
+
+        yield "comments.new:new-thread", self._new_thread
+        yield "comments.new:finish", self._new_comment
+        yield "comments.edit", self._edit_comment
+        yield "comments.delete", self._delete_comment
+
+    def _sanitize(self, message):
+        # Need to strip elements Telegram hates
+        # See https://core.telegram.org/bots/api#html-style
+        allowed = ["b", "i", "u", "s", "a", "code", "pre"]
+        sanitized_msg = message
+        # Preserve some emphasis that was mis-rendered by misaka
+        sanitized_msg = sanitized_msg.replace(
+            "<strong>", "<b>").replace("</strong>", "</b>")
+        for m in re.findall(r"(</?\w+>)", message):
+            # Only tag content:
+            stripped = m.lstrip("<").rstrip(">").lstrip("/")
+            # Links should be ok, however attrs may appear in any order
+            if any((stripped.startswith('a href'),
+                    stripped.startswith('a rel="noopener"'),
+                    stripped.startswith('a rel="nofollow"'))):
+                continue
+            if stripped not in allowed:
+                sanitized_msg = sanitized_msg.replace(m, "")
+        return sanitized_msg
+
+    def _post_tg(self, message):
+        if not requests:
+            logger.warn("Need requests package for posting to Telegram API!")
+            return
+        r = requests.post(self.telegram_api,
+                          data={
+                              'chat_id': self.chat_id,
+                              'text': message,
+                              'parse_mode': 'HTML'
+                          })
+        # Response should look like:
+        # b'{"ok":true,"result":...}
+        logger.info("Got response from TG API: {}".format(r.content))
+        r_dict = json.loads(r.content)
+        if r_dict.get("ok") is True:
+            logger.info("Posting to Telegram successful")
+        else:
+            logger.warn("Posting to Telegram failed! {}".format(r_dict))
+
+    def _new_thread(self, thread):
+        pass
+        # Don't hook this up for now, do I really want to be spammed by meaningless ids?
+        # Also, isso fails to fetch the thread title anyway
+        #self._post_tg("New thread! {id}: {title}".format(**thread))
+
+    def _moderation_footer(self, comment):
+        uri = self.public_endpoint + "/id/%i" % comment["id"]
+        key = self.isso.sign(comment["id"])
+        msg = "\n\n<b>Moderation</b>: "
+        msg += "<a href='%s'>Delete</a>" % (uri + "/delete/" + key)
+        if comment["mode"] == 2:
+            msg += ", <a href='%s'>Activate</a>" % (uri + "/activate/" + key)
+        return msg
+
+    def _format_metadata(self, comment, thread=None):
+        sanitized_text = self._sanitize(comment["text"])
+        msg = "<b>Author</b>: {}\n".format(comment.get("author"))
+        if comment.get("website"):
+            msg += "<b>Website:</b> {}\n".format(comment["website"])
+        if comment.get("email"):
+            msg += "<b>Email:</b> {}\n".format(comment["email"])
+        if thread:
+            msg += "<b>Thread:</b> https://{}\n".format(thread.get("uri"))
+        msg += "<b>Content</b>:\n{}".format(sanitized_text)
+        return msg
+
+    def _new_comment(self, thread, comment):
+        # Make sure that db.comments object is not inadvertently
+        # modified for acutal API functions
+        msg = "New comment!\n\n"
+        msg += self._format_metadata(comment, thread)
+        msg += self._moderation_footer(comment)
+        self._post_tg(msg)
+
+    def _edit_comment(self, comment):
+        # Make sure that db.comments object is not inadvertently
+        # modified for acutal API functions
+        msg = "Comment edited:\n\n"
+        msg += self._format_metadata(comment)
+        msg += self._moderation_footer(comment)
+        self._post_tg(msg)
+
+    def _delete_comment(self, id):
+        pass
+        # Don't hook this up for now
+        #self._post_tg("Comment deleted: {}".format(id))
 
 
 class Stdout(object):
