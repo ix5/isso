@@ -67,7 +67,7 @@ from isso.wsgi import origin, urlsplit
 from isso.utils import http, JSONRequest, html, hash
 from isso.views import comments
 
-from isso.ext.notifications import Stdout, SMTP
+from isso.ext.notifications import Stdout, SMTP, Telegram
 
 logging.getLogger('werkzeug').setLevel(logging.WARN)
 logging.basicConfig(
@@ -105,6 +105,8 @@ class Isso(object):
                 subscribers.append(Stdout(None))
             elif backend in ("smtp", "SMTP"):
                 smtp_backend = True
+            elif backend == "telegram":
+                subscribers.append(Telegram(conf))
             else:
                 logger.warning("unknown notification backend '%s'", backend)
         if smtp_backend or conf.getboolean("general", "reply-notifications"):
