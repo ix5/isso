@@ -4,7 +4,7 @@
 
   Inspired by http://codepen.io/gschier/pen/GLvAy
 */
-define(["app/lib/promise", "app/config"], function(Q, config) {
+define(["app/lib/promise"], function(Q) {
 
     "use strict";
 
@@ -33,7 +33,7 @@ define(["app/lib/promise", "app/config"], function(Q, config) {
     /**
      * Pick random squares to fill in.
      */
-    var generateIdenticon = function(key, padding, size) {
+    var generateIdenticon = function(key, padding, size, config) {
 
         var svg =  document.createElementNS("http://www.w3.org/2000/svg", "svg");
         svg.setAttribute("version", "1.1");
