@@ -4,6 +4,7 @@ module.exports = {
     "postbox-author-placeholder": "John Doe",
     "postbox-email": "E-mail (optional)",
     "postbox-email-placeholder": "johndoe@example.com",
+    "postbox-email-info": "E-Mail will not be made public",
     "postbox-website": "Website (optional)",
     "postbox-website-placeholder": "https://example.com",
     "postbox-preview": "Preview",

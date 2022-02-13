@@ -27,6 +27,8 @@ var html = function (globals) {
     + "<p class='isso-input-wrapper'>"
       + "<label for='isso-postbox-email'>" + i18n('postbox-email') + "</label>"
       + "<input id='isso-postbox-email' type='email' name='email' placeholder='" + i18n('postbox-email-placeholder') + "' value='" + (email ? email : '') + "' />"
+      + "<abbr class='isso-postbox-email-info' title='" + i18n('postbox-email-info') + "'>?</abbr>"
+      + "<span class='isso-postbox-email-tooltip isso-tooltip-hidden'>" + i18n('postbox-email-info') + "</span>"
     + "</p>"
     + "<p class='isso-input-wrapper'>"
       + "<label for='isso-postbox-website'>" + i18n('postbox-website') + "</label>"

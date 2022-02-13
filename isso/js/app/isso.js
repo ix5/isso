@@ -76,6 +76,11 @@ var Postbox = function(parent) {
             });
     });
 
+    // email tooltip on clicking '?'
+    $("[class='isso-postbox-email-info']", el).on("click", function() {
+        $(".isso-postbox-email-tooltip", el).classList.toggle("isso-tooltip-hidden");
+    });
+
     // edit function
     var edit = function() {
         $(".isso-preview .isso-text", el).innerHTML = '';
