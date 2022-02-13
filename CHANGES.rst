@@ -37,6 +37,14 @@ Changelog for Isso
   of these is available.  (The existing `data-isso-lang` *overrides*
   browser-supplied language preferences.)
 
+- Allow customizing the "Subject" field of emails sent to notify
+  of new comments (#553, SnorlaxYum)
+
+    [mail]
+    subject_admin = {title}
+    subject_user_reply = Re: New comment posted on {title}
+    subject_user_new_comment = Re: New comment posted on {title}
+
 0.12.4 (2021-02-03)
 -------------------
 

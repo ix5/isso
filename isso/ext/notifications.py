@@ -80,15 +80,20 @@ class SMTP(object):
 
             uwsgi.spooler = spooler
 
+    PLACEHOLDERS = dict(
+        NO_NAME="Anonymous",
+        NO_TITLE="Thread",
+    )
+
     def __iter__(self):
         yield "comments.new:after-save", self.notify_new
         yield "comments.activate", self.notify_activated
 
-    def format(self, thread, comment, parent_comment, recipient=None, admin=False):
+    def format(self, thread, comment, parent_comment, recipient_comment=None, admin=False):
 
         rv = io.StringIO()
 
-        author = comment["author"] or "Anonymous"
+        author = comment["author"] or self.PLACEHOLDERS["NO_NAME"]
         if admin and comment["email"]:
             author += " <%s>" % comment["email"]
 
@@ -119,19 +124,31 @@ class SMTP(object):
 
         else:
             uri = self.public_endpoint + "/id/%i" % parent_comment["id"]
-            key = self.isso.sign(('unsubscribe', recipient))
+            key = self.isso.sign(('unsubscribe', recipient_comment["email"]))
 
-            rv.write("Unsubscribe from this conversation: %s\n" % (uri + "/unsubscribe/" + quote(recipient) + "/" + key))
+            rv.write("Unsubscribe from this conversation: %s\n" % (uri + "/unsubscribe/" + quote(recipient_comment["email"]) + "/" + key))
 
         rv.seek(0)
         return rv.read()
 
+    def notify_subject(self, thread, comment, parent_comment=None, recipient_comment=None, admin=False):
+        title = thread["title"] or self.PLACEHOLDERS["NO_TITLE"]
+        replier = comment["author"] or self.PLACEHOLDERS["NO_NAME"]
+        if admin:
+            return self.isso.conf.get("mail", "subject_admin").format(
+                title=title, replier=replier)
+        repliee = parent_comment["author"] or self.PLACEHOLDERS["NO_NAME"]
+        receiver = recipient_comment["author"] or self.PLACEHOLDERS["NO_NAME"]
+        if parent_comment["id"] == recipient_comment["id"]:
+            msg = self.isso.conf.get("mail", "subject_user_reply")
+        else:
+            msg = self.isso.conf.get("mail", "subject_user_new_comment")
+        return msg.format(title=title, repliee=repliee, replier=replier, receiver=receiver)
+
     def notify_new(self, thread, comment):
         if self.admin_notify:
+            subject = self.notify_subject(thread, comment, admin=True)
             body = self.format(thread, comment, None, admin=True)
-            subject = "New comment posted"
-            if thread['title']:
-                subject = "%s on %s" % (subject, thread["title"])
             self.sendmail(subject, body, thread, comment)
 
         if comment["mode"] == 1:
@@ -151,8 +168,8 @@ class SMTP(object):
                 email = comment_to_notify["email"]
                 if "email" in comment_to_notify and comment_to_notify["notification"] and email not in notified \
                         and comment_to_notify["id"] != comment["id"] and email != comment["email"]:
-                    body = self.format(thread, comment, parent_comment, email, admin=False)
-                    subject = "Re: New comment posted on %s" % thread["title"]
+                    body = self.format(thread, comment, parent_comment, comment_to_notify)
+                    subject = self.notify_subject(thread, comment, parent_comment, comment_to_notify)
                     self.sendmail(subject, body, thread, comment, to=email)
                     notified.append(email)
 

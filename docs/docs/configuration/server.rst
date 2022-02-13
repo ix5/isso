@@ -262,6 +262,76 @@ timeout
     specify a timeout in seconds for blocking operations like the
     connection attempt.
 
+Mail
+----
+
+Configure the format the mail notification uses in the SMTP section.
+
+.. code-block:: ini
+
+    [mail]
+    subject_admin = {title}
+    subject_user_reply = Re: New comment posted on {title}
+    subject_user_new_comment = Re: New comment posted on {title}
+
+subject_admin
+    Specify the subject format of the notification email sent to the admin.
+
+    Default: ``{title}``.
+
+    Available variables:
+
+    {title}
+        The title of the isso thread.
+
+    {replier}
+        The name of the author of the comment. If the author has no name,
+        it will fall back to the term "Anonymous".
+
+subject_user_reply
+    Specify the subject format of the notification email sent to the subscribed
+    commenter when the new comment is a reply to his comment.
+
+    Default: ``Re: New comment posted on {title}``.
+
+    Available variables:
+
+    {title}
+        The title of the isso thread.
+
+    {replier}
+        The name of the author of the comment. If the author has no name,
+        it will fall back to the term "Anonymous".
+
+    {repliee}
+        The author whose comment is replied to.  If the author has no
+        name, it will fall back to the term "Anonymous".
+
+    {receiver}
+        The name of the recipient of the email.
+
+subject_user_new_comment
+    Specify the subject format of the notification email sent to the subscribed
+    commenter whose comment is a reply to a comment when the new comment is also
+    a reply to that comment.
+
+    Default: ``Re: New comment posted on {title}``.
+
+    Available variables:
+
+    {title}
+        The title of the isso thread.
+
+    {replier}
+        The name of the author of the comment. If the author has no name,
+        it will fall back to the term "Anonymous".
+
+    {repliee}
+        The author whose comment is replied to.  If the author has no
+        name, it will fall back to the term "Anonymous".
+
+    {receiver}
+        The name of the recipient of the email.
 
 Guard
 -----
