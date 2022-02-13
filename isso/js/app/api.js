@@ -4,7 +4,7 @@ var globals = require("app/globals");
 "use strict";
 
 var salt = "Eech7co8Ohloopo9Ol6baimi",
-    location = function() { return window.location.pathname };
+    location = function() { return window.location.host + window.location.pathname };
 
 var script, endpoint,
     js = document.getElementsByTagName("script");
