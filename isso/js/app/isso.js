@@ -72,6 +72,11 @@ define(["app/dom", "app/utils", "app/config", "app/api", "app/jade", "app/i18n",
                 });
         });
 
+        // email tooltip on clicking '?'
+        $("[class='postbox-email-info']", el).on("click", function() {
+            $(".postbox-email-tooltip", el).classList.toggle("tooltip-hidden");
+        });
+
         // edit function
         var edit = function() {
             $(".preview .text", el).innerHTML = '';
