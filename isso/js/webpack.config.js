@@ -34,9 +34,9 @@ module.exports = [
          * https://webpack.js.org/configuration/resolve/#resolveloader
          */
         resolveLoader: {
-            alias: {
-                'pug': 'pug-loader',
-            },
+            //alias: {
+            //    'pug': 'pug-loader',
+            //},
         },
         /* https://webpack.js.org/guides/asset-modules/ */
         module: {
