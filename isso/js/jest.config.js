@@ -36,6 +36,10 @@ const config = {
 
   /* puppeteer end-to-end integration testing */
   preset: "jest-puppeteer",
+
+  /* Not currently needed, might be used to bring up a dev server */
+  //globalSetup: "<rootDir>/tests/setup/global-setup.js",
+  //globalTeardown: "<rootDir>/tests/setup/global-teardown.js",
 };
 
 module.exports = config;
