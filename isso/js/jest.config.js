@@ -33,6 +33,9 @@ const config = {
     "\.svg$": "<rootDir>/tests/mocks/fileMock.js",
     "^pug": "pug-loader",
   },
+
+  /* puppeteer end-to-end integration testing */
+  preset: "jest-puppeteer",
 };
 
 module.exports = config;
