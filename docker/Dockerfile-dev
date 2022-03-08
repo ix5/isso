@@ -1,0 +1,50 @@
+# Build and run python parts in development mode
+# Note that this image does not contain generated client Javascript files
+# This image should be tagged as "isso-dev"
+
+# Set up a virtualenv
+FROM python:3.10-alpine AS isso-dev
+WORKDIR /src/
+
+# Install cffi dependencies since they're not present on alpine by default
+# (required by cffi which in turn is required by misaka)
+RUN apk add --no-cache gcc libffi-dev libc-dev
+
+# Set up virtualenv
+RUN python3 -m venv /isso \
+ && . /isso/bin/activate \
+ && pip3 install --no-cache-dir --upgrade pip
+
+# For some reason, it is required to install cffi before misaka, else pip will
+# fail to build cffi
+RUN . /isso/bin/activate \
+ && pip3 install cffi
+
+COPY ./isso /src/isso/
+COPY ./share /src/share/
+COPY ["setup.py", "setup.cfg", "README.md", "LICENSE", "./"]
+
+# Install package in development mode (symlink)
+RUN . /isso/bin/activate \
+ && pip3 install -e .
+
+COPY --from=isso-js /src/isso/js/ /src/isso/js/
+
+# Example of use:
+#
+# $ docker build -f docker/Dockerfile-dev -t isso-dev .
+#
+# To only build venv, without installing Isso:
+# $ docker build --target isso-venv-builder -f docker/Dockerfile-python -t isso-python .
+#
+# To do development work, mount $PWD as a volume to /src
+# $ docker run -d --rm \
+#       --name isso \
+#       -p 8080:8080 \
+#       -v $PWD/isso:/src/isso:ro \
+#       -v $PWD/config:/config:ro \
+#       -v $PWD/db:/db \
+#       isso-dev \
+#       /isso/bin/isso -c /config/isso.cfg run
+
+# vim: set filetype=dockerfile

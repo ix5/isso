@@ -1,0 +1,40 @@
+# https://docs.docker.com/compose/compose-file/compose-file-v3/
+version: "3.9"
+
+services:
+
+  # Force building intermediate image
+  isso-js-intermediary:
+    image: isso-js
+    container_name: isso-js-intermediary
+    build:
+      context: .
+      dockerfile: docker/Dockerfile-js
+
+  isso-server:
+    image: isso-dev
+    container_name: isso-server
+    build:
+      context: .
+      dockerfile: docker/Dockerfile-dev
+    #command: sh -c ". /isso/bin/activate && pip3 install -e . && /isso/bin/isso -c /config/isso.cfg run"
+    command: /isso/bin/isso -c /config/isso.cfg run
+    ports:
+      - 8080:8080
+    volumes:
+      #- ./isso:/src/isso/:ro
+      - ./db:/db/
+      - ./config:/config/:ro
+    depends_on:
+      - isso-js-intermediary
+
+  isso-client:
+    image: isso-js-testbed
+    container_name: isso-client
+    build:
+      context: .
+      dockerfile: docker/Dockerfile-js-testbed
+    #command: npm run test-unit
+    depends_on:
+      - isso-server
+      - isso-js-intermediary

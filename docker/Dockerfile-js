@@ -1,0 +1,24 @@
+# Build Javascript client parts using NodeJS
+# This image should be tagged as "isso-js"
+
+FROM node:current-alpine AS isso-js
+WORKDIR /src/
+
+# make is not installed by default on alpine
+RUN apk add --no-cache make
+
+# Only copy necessities, to not trigger re-builds unnecessarily
+COPY ["Makefile", "package.json", "./"]
+COPY ["isso/js/", "./isso/js/"]
+COPY ["isso/css/", "./isso/css/"]
+
+# Disable nagware and save some time skipping "security" "audits"
+RUN echo -e "audit=false\nfund=false"> /root/.npmrc
+
+RUN make init js
+
+# Example of use:
+#
+# docker build -f docker/Dockerfile-js -t isso-js .
+
+# vim: set filetype=dockerfile

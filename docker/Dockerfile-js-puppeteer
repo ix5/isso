@@ -1,0 +1,20 @@
+# Download puppeteer assets
+# This image should be tagged as "isso-js-puppeteer"
+
+# Avoid triggering a re-download of its puppeteer assets if at all possible
+
+# Keep image in sync with "isso-js-testbed"
+FROM node:current AS isso-js-puppeteer
+WORKDIR /src/
+
+RUN echo -e "audit=false\nfund=false" > /root/.npmrc
+
+# Installing puppeteer will take some time as it pulls in
+# a ~400Mb headless chrome file
+RUN npm install puppeteer
+
+# Example of use:
+#
+# docker build -f docker/Dockerfile-js-puppeteer -t isso-js-puppeteer .
+
+# vim: set filetype=dockerfile

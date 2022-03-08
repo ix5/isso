@@ -1,0 +1,66 @@
+# Isso production Dockerfile
+# Depends on "isso-js" image
+# This image should be tagged as "isso"
+
+# First stage: Create production-ready Isso package
+
+# Copy needed files
+FROM python:3.10-alpine AS isso-builder
+WORKDIR /isso/
+
+# Set up virtualenv
+RUN python3 -m venv /isso \
+ && . /isso/bin/activate \
+ && pip3 install --no-cache-dir --upgrade pip \
+ && pip3 install --no-cache-dir gunicorn
+
+# Install cffi dependencies since they're not present on alpine by default
+# (required by cffi which in turn is required by misaka)
+RUN apk add --no-cache gcc libffi-dev libc-dev
+
+# For some reason, it is required to install cffi before misaka, else pip will
+# fail to build cffi
+RUN . /isso/bin/activate \
+ && pip3 install cffi
+
+# SRC "isso/" is treated as "isso/*" by docker, so copy to subdir explicitly
+COPY ./isso/ /isso/isso/
+COPY ./share/ ./share/
+COPY ["setup.py", "setup.cfg", "README.md", "LICENSE", "./"]
+
+# Copy over generated Javascript client files
+COPY --from=isso-js /src/isso/js/ ./isso/js
+
+# Build and install Isso package
+RUN . /isso/bin/activate \
+ && python3 setup.py install
+
+
+# Second stage: Run Isso
+FROM python:3.10-alpine AS isso
+WORKDIR /isso/
+COPY --from=isso-builder /isso/ .
+
+# Clean up
+RUN rm -rf /var/apk/cache/* /tmp/* /var/tmp/*
+
+# Configuration
+VOLUME /db /config
+EXPOSE 8080
+ENV ISSO_SETTINGS /config/isso.cfg
+
+# Run Isso via gunicorn WSGI server
+CMD ["/isso/bin/gunicorn", "-b", "0.0.0.0:8080", "-w", "4", "--preload", "isso.run", "--worker-tmp-dir", "/dev/shm"]
+
+# Example of use:
+#
+# Build:
+# $ docker build -f docker/Dockerfile-production -t isso .
+#
+# Run:
+# $ mkdir config
+# $ cp share/isso-dev.conf config/isso.cfg
+# $ mkdir db/
+# $ docker run -d --rm --name isso -p 8080:8080 -v $PWD/config:/config -v $PWD/db:/db isso:latest
+
+# vim: set filetype=dockerfile

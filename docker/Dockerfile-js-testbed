@@ -1,0 +1,51 @@
+# Prepare a testbed for Javascript testing
+# This image should be tagged as "isso-js-testbed"
+
+# Note: Do not use alpine images as they do not contain needed GObject, X11
+# etc. packages and complicate things
+# :current resolves to NodeJS 17 on Debian Buster as of 03/2022
+# https://hub.docker.com/_/node
+FROM node:current AS isso-js-puppeteer
+WORKDIR /src/
+
+# Copy Javascript files from "isso-js" intermediate image
+COPY --from=isso-js /src/ .
+
+# Install everything necessary to run headless
+RUN apt-get update && apt-get install -y --no-install-recommends libnss3 libxss1 chromium
+
+# Skip downloading headless chromium
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
+
+RUN echo -e "audit=false\nfund=false" > /root/.npmrc
+
+RUN npm install jest jest-puppeteer
+# https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md#running-puppeteer-in-docker
+# same layer as npm install to keep re-chowned files from using up more space
+#RUN npm install jest jest-puppeteer \
+# && useradd pptruser -m -U -G audio,video \
+# && chown -R pptruser:pptruser /src
+
+# Restore headless chromium files from intermediate image
+COPY --from=isso-js-puppeteer \
+    /src/node_modules/puppeteer/.local-chromium/ \
+    ./node_modules/puppeteer/.local-chromium/
+
+# Run everything after as non-privileged user.
+#USER pptruser
+
+#RUN echo -e "audit=false\nfund=false"> /home/pptruser/.npmrc
+
+# Need to set $CI so that jest-puppeteer applies sensible launch params for
+# running headless chromium. Otherwise, chromium will fail with a "missing
+# sandbox" error.
+# https://github.com/smooth-code/jest-puppeteer/blob/678ce56b49100f248237757df19f89b2542a9465/packages/jest-environment-puppeteer/src/readConfig.js#L14-L28
+ENV CI=true
+
+# Note: No entry point, will be set by docker-compose
+
+# Example of use:
+#
+# docker build -f docker/Dockerfile-js-testbed -t isso-js-testbed .
+
+# vim: set filetype=dockerfile

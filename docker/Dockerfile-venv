@@ -1,0 +1,18 @@
+# Set up a virtualenv for python parts
+# Note that this image does not contain generated client Javascript files
+# This image should be tagged as "isso-venv"
+
+# Set up a virtualenv
+FROM python:3.10-alpine AS isso-venv
+WORKDIR /src/
+COPY . .
+RUN python3 -m venv /isso \
+ && . /isso/bin/activate \
+ && pip3 install --no-cache-dir --upgrade pip \
+ && pip3 install --no-cache-dir gunicorn flask
+
+# Example of use:
+#
+# $ docker build -f docker/Dockerfile-venv -t isso-venv .
+
+# vim: set filetype=dockerfile
