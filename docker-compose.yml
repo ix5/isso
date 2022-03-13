@@ -11,6 +11,14 @@ services:
       context: .
       dockerfile: docker/Dockerfile-js
 
+  # Force building intermediate image
+  isso-js-puppeteer-intermediary:
+    image: isso-js-puppeteer
+    container_name: isso-js-puppeteer-intermediary
+    build:
+      context: .
+      dockerfile: docker/Dockerfile-js-puppeteer
+
   isso-server:
     image: isso-dev
     container_name: isso-server
@@ -38,3 +46,4 @@ services:
     depends_on:
       - isso-server
       - isso-js-intermediary
+      - isso-js-puppeteer-intermediary

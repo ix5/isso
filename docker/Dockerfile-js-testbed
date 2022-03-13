@@ -5,7 +5,7 @@
 # etc. packages and complicate things
 # :current resolves to NodeJS 17 on Debian Buster as of 03/2022
 # https://hub.docker.com/_/node
-FROM node:current AS isso-js-puppeteer
+FROM node:current AS isso-js-testbed
 WORKDIR /src/
 
 # Copy Javascript files from "isso-js" intermediate image
