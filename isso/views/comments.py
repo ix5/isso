@@ -107,6 +107,7 @@ class API(object):
         ('dislike', ('POST', '/id/<int:id>/dislike')),
         ('demo', ('GET', '/demo')),
         ('preview', ('POST', '/preview')),
+        ('config', ('GET', '/config')),
         ('login', ('POST', '/login')),
         ('admin', ('GET', '/admin'))
     ]
@@ -834,7 +835,6 @@ class API(object):
             'total_replies': reply_counts[root_id],
             'hidden_replies': reply_counts[root_id] - len(root_list),
             'replies': self._process_fetched_list(root_list, plain),
-            'config': self.public_conf
         }
         # We are only checking for one level deep comments
         if root_id is None:
@@ -1114,6 +1114,39 @@ class API(object):
             raise BadRequest("no text given")
 
         return JSON({'text': self.isso.render(data["text"])}, 200)
+
+    """
+    @api {get} /config fetch client config
+    @apiGroup Thread
+    @apiDescription
+        Fetches configuration of client parameters. The following settings are sent as a `config` object from the server to the client:
+
+            reply-to-self
+            require-author
+            require-email
+            reply-notifications
+            gravatar
+
+    @apiSuccess {Object[]} config
+        The client configuration object.
+
+    @apiExample {curl} get the client config:
+        curl 'https://comments.example.com/config'
+
+    @apiSuccessExample Client config:
+        {
+          "config": {
+            "reply-to-self": false,
+            "require-email": false,
+            "require-author": false,
+            "reply-notifications": false,
+            "gravatar": false
+          }
+        }
+    """
+    def config(self, environment, request):
+        rv = {'config': self.public_conf}
+        return JSON(rv, 200)
 
     def demo(self, env, req):
         return redirect(
