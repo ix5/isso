@@ -6,6 +6,11 @@ var html = function (globals) {
   var humanize = globals.humanize;
   var svg = globals.svg;
 
+  console.log("comment:")
+  console.log(conf)
+  console.log("comment: gravatar")
+  console.log(conf.gravatar)
+
   var author = comment.author ? comment.author : i18n('comment-anonymous');
 
   return "" +

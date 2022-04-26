@@ -26,6 +26,8 @@ var heading;
 var postbox;
 
 function init() {
+    console.log("init:");
+    console.log(config);
     // Fetch config from server, will override any local data-isso-* attributes
     api.config().then(
         function (rv) {
@@ -38,6 +40,7 @@ function init() {
                                 "to keep client and server in sync",
                                 config[setting], setting, rv.config[setting], setting);
                 }
+                console.log("Setting %s to %s", setting, rv.config[setting])
                 config[setting] = rv.config[setting]
             }
         },

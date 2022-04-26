@@ -67,4 +67,7 @@ config["langs"] = languages;
 delete config["lang"];
 delete config["default-lang"];
 
+console.log("config:");
+console.log(config);
+
 module.exports = config;
