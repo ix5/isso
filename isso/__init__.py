@@ -116,6 +116,7 @@ class Isso(object):
 
         views.Info(self)
         views.Metrics(self)
+        views.Syntax(self)
         comments.API(self, self.hasher)
 
     def render(self, text):

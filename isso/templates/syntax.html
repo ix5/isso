@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Allowed syntax</title>
+  <link type="text/css" href="{{isso_host_script}}/css/isso.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <div class="wrapper syntax">
+    <div class="header">
+      <header>
+        <div class="title">
+          <h2>Markdown syntax</h2>{# TODO remove this, should render inline above/below comment box #}
+        </div>
+      </header>
+    </div>
+    <main>
+      {% set markdown_link = '<a href="https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet">Markdown</a>' %}
+      <p>{{ _('Comments are entered using %(link)s syntax.')|format(link=markdown_link)|safe }}
+         {{ _('Use the "Preview" button to see how your comment would look like before sending it.') }}
+      </p>
+      <p>
+        For example, this comment text
+        <blockquote>
+          <pre><code>This is *emphasized*, **bold**, [Link Text](https://example.org)</code></pre>
+        </blockquote>
+        will be displayed as
+        <blockquote>
+          <pre><p>This is <em>emphasized</em>, <strong>bold</strong>, <a href="https://example.org">Link Text</a></pre>
+        </blockquote>
+      </p>
+
+        {# Explanation of misaka flags/exts: https://flask-misaka.readthedocs.io/en/latest/#options #}
+
+        {% if 'hard-wrap' not in config.flags %}
+        <p>Using Markdown, you need to type two new lines to create line breaks.</p>
+        {% endif %}
+
+        {% if 'math' in config.extensions %}
+        <p>You can use <code>$$LaTeX$$</code>-style math blocks.</p>
+        {% endif %}
+
+        {% if 'autolink' in config.extensions %}
+        <p>You can also simply paste links such as <code>https://example.org</code>
+           without any description; they will automatically be clickable.</p>
+        {% endif %}
+
+        {% if 'img' in config.elements and 'src' in config.attributes %}
+        <p>Embedding images is <b>enabled</b>. Use <code>![Image caption](https://example.org/image.png)</code>.</p>
+        {% else %}
+        <p>Embedding images is <b>not enabled</b></p>
+        {% endif %}
+
+        {% if 'li' in config.elements %}
+        <table>
+          <tbody>
+            <tr>
+              <td>
+        To create <b>lists</b>, use:
+              </td>
+              <td>
+        This will result in:
+              </td>
+            </tr>
+            <tr>
+              <td>
+<pre><code>1. First ordered list item
+2. Another item
+
+* Unordered list can use asterisks
+- Or minuses</code></pre>
+        </p>
+              </td>
+              <td>
+        <ol>
+          <li>First ordered list item</lI>
+          <li>Another item</li>
+        </ol>
+        <ul>
+          <li>Unordered list can use asterisks</li>
+          <li>Or minuses</li>
+        </ul>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        {% endif %}
+
+        {% if 'strikethrough' in config.extensions %}
+        <p>To strike through text, use: <code>Text ~~deleted~~</code> &rarr; Text <strike>deleted</strike></p>
+        {% endif %}
+
+        {# 'skip-html' flag disallows entering HTML directly #}
+        {% if 'skip-html' not in config.flags %}
+        <p>You can also type in HTML elements such as <code>&lt;strong&gt;</code>, <code>&lt;p&gt;Text&lt;/p&gt;</code> etc. directly.
+           <br>
+           Allowed elements: {% for el in config.elements %}<code>&lt;{{el}}&gt;</code> {% endfor %},
+           with allowed element attributes: {% for attr in config.attributes %}<code>{{attr}}="&hellip;"</code> {% endfor %}
+        </p>
+        {% endif %}
+    </main>
+  </div>
+</body>
+</html>
+

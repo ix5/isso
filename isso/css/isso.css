@@ -263,3 +263,23 @@
         width: 100%;
     }
 }
+
+.syntax {
+    max-width: 800px;
+    width: 100%;
+    margin: 0 auto;
+    line-height: 1.4em;
+}
+.syntax pre {
+    white-space: pre-wrap;
+    line-height: 1.8em;
+}
+.syntax code {
+    font-family: monospace;
+    background: rgba(0, 196, 239, 0.17);
+    padding: 0.2em;
+    color: #006075;
+}
+.syntax table td {
+    vertical-align: top;
+}

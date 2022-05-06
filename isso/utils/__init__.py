@@ -5,6 +5,8 @@ import ipaddress
 import json
 import os
 
+import gettext
+
 from datetime import datetime
 from jinja2 import Environment, FileSystemLoader
 from werkzeug.wrappers import Response
@@ -106,6 +108,19 @@ def render_template(template_name, **context):
                                  '..', 'templates')
     jinja_env = Environment(loader=FileSystemLoader(template_path),
                             autoescape=True)
+
+    current_locale = 'en'
+    locale_path = 'locale/'
+    translations = gettext.translation(
+        domain='isso',
+        localedir=locale_path,
+        languages=[current_locale]
+    )
+    # translations.install()  # don't need _() globally
+    jinja_env.add_extension('jinja2.ext.i18n')
+    jinja_env.install_gettext_translations(translations)
+    # https://jinja.palletsprojects.com/en/3.0.x/extensions/#new-style-gettext
+    jinja_env.newstyle_gettext = True
 
     def datetimeformat(value):
         return datetime.fromtimestamp(value).strftime('%H:%M / %d-%m-%Y')

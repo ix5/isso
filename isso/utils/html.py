@@ -23,6 +23,10 @@ class Sanitizer(object):
         # href for <a> and align for <table>
         self.attributes = ["align", "href"] + attributes
 
+    @property
+    def config(self):
+        return dict(elements=self.elements, attributes=self.attributes)
+
     def sanitize(self, text):
         clean_html = bleach.clean(text, tags=self.elements, attributes=self.attributes, strip=True)
 
@@ -94,7 +98,18 @@ class Markup(object):
         allowed_attributes = [x for x in conf.getlist("allowed-attributes") if x]
         sanitizer = Sanitizer(allowed_elements, allowed_attributes)
 
+        # Extend with default allowed elements/attrs
+        self.elements = sanitizer.config["elements"]
+        self.attributes = sanitizer.config["attributes"]
+
         self._render = lambda text: sanitizer.sanitize(parser(text))
+
+    @property
+    def config(self):
+        return dict(extensions=self.extensions,
+                    flags=self.flags,
+                    elements=self.elements,
+                    attributes=self.attributes)
 
     def render(self, text):
         return self._render(text)

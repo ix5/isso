@@ -10,6 +10,7 @@ from werkzeug.routing import Rule
 from werkzeug.exceptions import BadRequest
 
 from isso import local
+from isso.utils import html, render_template
 
 
 class requires:
@@ -72,3 +73,18 @@ class Metrics(object):
         content_type = 'text/plain; version=0.0.4; charset=utf-8'
         metrics = ""
         return Response(metrics, 200, content_type=content_type)
+
+
+class Syntax(object):
+
+    def __init__(self, isso):
+        self.isso = isso
+        self.render_config = html.Markup(isso.conf.section("markup")).config
+
+        isso.urls.add(Rule('/syntax', endpoint=self.show))
+
+    def show(self, environ, request):
+        isso_host_script = self.isso.conf.get("server", "public-endpoint") or local.host
+        return render_template('syntax.html',
+                               config=self.render_config,
+                               isso_host_script=isso_host_script)
