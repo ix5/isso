@@ -9,7 +9,9 @@ on:
 
 env:
   build_platforms: ${{ vars.BUILD_PLATFORMS || 'linux/amd64' }}
-  build_image: ${{ vars.BUILD_IMAGE || 'ghcr.io/isso-comments/isso-js-testbed' }}
+  #build_image: ${{ vars.BUILD_IMAGE || 'ghcr.io/isso-comments/isso-js-testbed' }}
+  build_image: ${{ vars.BUILD_IMAGE || 'ghcr.io/ix5/isso-js-testbed' }}
+  ISSO_DOCKER_REGISTRY: 'ghcr.io/ix5'
 
 jobs:
   build:
