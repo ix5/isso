@@ -9,8 +9,10 @@ on:
   pull_request:
 
 env:
-  build_platforms: ${{ vars.BUILD_PLATFORMS || 'linux/amd64,linux/arm64/v8' }}
-  build_image: ${{ vars.BUILD_IMAGE || 'ghcr.io/isso-comments/isso' }}
+  #build_platforms: ${{ vars.BUILD_PLATFORMS || 'linux/amd64,linux/arm64/v8' }}
+  build_platforms: ${{ vars.BUILD_PLATFORMS || 'linux/amd64' }}
+  #build_image: ${{ vars.BUILD_IMAGE || 'ghcr.io/isso-comments/isso' }}
+  build_image: ${{ vars.BUILD_IMAGE || 'ghcr.io/ix5/isso' }}
 
 jobs:
   build:
