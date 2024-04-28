@@ -21,6 +21,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Is tag?
+        run: echo ${{ github.ref_type == 'tag' }}
+
       - name: Docker meta
         id: meta
         uses: docker/metadata-action@v4
@@ -34,6 +37,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{version}}
             type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=release,enable=${{ github.ref_type == 'tag' }}
 
       - name: Login to Github Container Registry
         if: github.event_name != 'pull_request'
